@@ -4,6 +4,6 @@ const heading = document.createElement("h1");
 heading.textContent = "D2 project";
 
 const message = document.createElement("p");
-message.textContent = "Your project starts here.";
+message.textContent = "Your project starts here. Pages Fixed";
 
 app.append(heading, message);
