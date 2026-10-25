@@ -39,7 +39,12 @@ export function render_stroke(ctx: CanvasRenderingContext2D, stroke: stroke_comm
 
   ctx.moveTo(stroke.points[0].x, stroke.points[0].y,);
 
+  // loop through all points within stroke
   for (let i = 1; i < stroke.points.length; i++) {
-    ctx.lineTo(stroke.points[i].x, stroke.points[i].y)
+    ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
   }
+  
+  ctx.stroke();
+  ctx.restore();
 }
+
