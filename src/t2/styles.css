@@ -22,3 +22,18 @@
   border-color: #2563eb;
   background: #ffc400;
 }
+
+.tool-create {
+  border-style: dashed;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+canvas {
+  display: block;
+  border: 1px solid #999;
+}

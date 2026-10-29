@@ -71,10 +71,36 @@ export class tool_collection {
       this.selected_id = id;
     }
   }
+
+  add(tool: tool_definition): void {
+    this.tools.push(tool);
+  }
 }
 
-// Shared placement: turns ANY tool into a command at a point.
-// Values are copied in, so later tool changes never affect placed objects.
+let custom_count = 0
+
+export function create_sticker_tool (
+  raw_text: string | null,
+  raw_label: string | null,
+): sticker_tool | null {
+  const text = raw_text?.trim() ?? "";
+  const label = raw_label?.trim() ?? "";
+
+  if (text === "" || label === "") return null
+  custom_count++
+
+  return {
+    kind: "sticker",
+    id: `custom-${custom_count}`,
+    label,
+    text: Array.from(text).slice(0, 8).join(""),
+    size: 40,
+    color: "black"
+  };
+}
+
+// Shared placement: turns ANY tool into a command at a point
+// Values are copied in, so later tool changes never affect placed objects
 export function create_command(
   tool: tool_definition,
   location: point,

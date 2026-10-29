@@ -1,4 +1,5 @@
 import type { tool_collection } from "./tools.ts";
+import { create_sticker_tool } from "./tools.ts";
 
 export function setup_toolbar(
   container: HTMLElement,
@@ -27,6 +28,26 @@ export function setup_toolbar(
 
       container.append(button);
     }
+
+    const create = document.createElement("button");
+
+    create.type = "button";
+    create.className = "tool-button tool-create";
+    create.textContent = " + New Sticker";
+    create.addEventListener("click", () => {
+      const text = globalThis.prompt("Emoji or short text:");
+      const label = text === null ? null : globalThis.prompt("Tool name:");
+      const tool = create_sticker_tool(text, label);
+
+      // Cancel or empty: nothing is added, nothing changes
+      if (tool === null) return;
+
+      tools.add(tool);
+      tools.select(tool.id);
+      render();
+    });
+
+    container.append(create);
   }
 
   render();
