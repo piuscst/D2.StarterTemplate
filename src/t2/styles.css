@@ -1,0 +1,24 @@
+#toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+}
+
+.tool-button {
+  padding: 6px 12px;
+  border: 2px solid #999;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.tool-button:hover {
+  background: #faf609;
+}
+
+.tool-button[aria-pressed="true"] {
+  border-color: #2563eb;
+  background: #ffc400;
+}
