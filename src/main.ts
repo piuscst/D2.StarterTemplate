@@ -3,6 +3,7 @@ import { setup_drawing } from "./t1/drawing.ts";
 import { render_document } from "./t1/renderer.ts";
 import { HistoryManager } from "./t3/history.ts";
 import type { drawing_command } from "./t1/document.ts";
+import { exportPng } from "./t3/export.ts";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 
@@ -42,7 +43,10 @@ redoButton.textContent = "Redo";
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 
-app.append(undoButton, redoButton, clearButton);
+const exportButton = document.createElement("button");
+exportButton.textContent = "Export PNG";
+
+app.append(undoButton, redoButton, clearButton, exportButton);
 
 function refresh() {
   drawingDocument.commands = history.getCommands();
@@ -50,6 +54,14 @@ function refresh() {
   undoButton.disabled = !history.canUndo();
   redoButton.disabled = !history.canRedo();
   clearButton.disabled = drawingDocument.commands.length === 0;
+  exportButton.disabled = drawingDocument.commands.length === 0;
+}
+
+function renderer(
+  ctx: CanvasRenderingContext2D,
+  commands: readonly drawing_command[],
+) {
+  render_document(ctx, { commands: [...commands] });
 }
 
 undoButton.addEventListener("click", () => {
@@ -65,6 +77,18 @@ redoButton.addEventListener("click", () => {
 clearButton.addEventListener("click", () => {
   history.clear();
   refresh();
+});
+
+exportButton.addEventListener("click", () => {
+  const drawing = {
+    width: canvas.width,
+    height: canvas.height,
+    commands: history.getCommands(),
+  };
+
+  exportPng(drawing, renderer, 2).catch((error) => {
+    console.error("Export failed:", error);
+  });
 });
 
 setup_drawing(canvas, drawingDocument, {
