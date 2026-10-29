@@ -108,4 +108,21 @@ setup_drawing(canvas, drawingDocument, {
   },
 });
 
+globalThis.addEventListener("keydown", (event: KeyboardEvent) => {
+  // Cmd on Mac, Ctrl elsewhere
+  if (!event.ctrlKey && !event.metaKey) return;
+
+  const key = event.key.toLowerCase();
+
+  if (key === "z" && !event.shiftKey) {
+    event.preventDefault();
+    history.undo();
+    refresh();
+  } else if (key === "y" || (key === "z" && event.shiftKey)) {
+    event.preventDefault();
+    history.redo();
+    refresh();
+  }
+});
+
 refresh();

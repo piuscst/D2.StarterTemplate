@@ -11,6 +11,7 @@ export interface stroke_command {
   points: point[];
   color: string;
   width: number;
+  render(ctx: CanvasRenderingContext2D): void;
 }
 
 // interface for Sticker
@@ -20,6 +21,7 @@ export interface sticker_command {
   text: string;
   size: number;
   color: string;
+  render(ctx: CanvasRenderingContext2D): void;
 }
 
 // return drawing command of either Stroke or a sticker command

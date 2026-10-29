@@ -1,6 +1,6 @@
 import { add_command } from "./document.ts";
 import type { drawing_command, drawing_document, point } from "./document.ts";
-import { render_document, render_sticker, render_stroke } from "./renderer.ts";
+import { render_document } from "./renderer.ts";
 import { create_command } from "../t2/tools.ts";
 import type { tool_definition } from "../t2/tools.ts";
 
@@ -43,14 +43,7 @@ export function setup_drawing(
     if (!ctx) return;
 
     render_document(ctx, document);
-
-    if (currentStroke !== null) {
-      if (currentStroke.type === "stroke") {
-        render_stroke(ctx, currentStroke);
-      } else {
-        render_sticker(ctx, currentStroke);
-      }
-    }
+    currentStroke?.render(ctx);
   }
 
   // Add a point if its different from the previous point
@@ -68,6 +61,17 @@ export function setup_drawing(
     if (!lastPoint || lastPoint.x !== point.x || lastPoint.y !== point.y) {
       currentStroke.points.push(point);
     }
+  }
+
+  // One place that throws away unfinished work
+  function cancel_gesture(): void {
+    if (activePointerId !== null && canvas.hasPointerCapture(activePointerId)) {
+      canvas.releasePointerCapture(activePointerId);
+    }
+
+    currentStroke = null;
+    activePointerId = null;
+    redraw();
   }
 
   // Function that starts the drawing
@@ -122,27 +126,22 @@ export function setup_drawing(
     redraw();
   }
 
-  // Function that throws away any unfinihsed/unused work
+  // Function that throws away any unfinished/unused work
   function pointer_cancel(event: PointerEvent): void {
     if (activePointerId !== event.pointerId) return;
-
-    currentStroke = null;
-    activePointerId = null;
-
-    if (canvas.hasPointerCapture(event.pointerId)) {
-      canvas.releasePointerCapture(event.pointerId);
-    }
-
-    redraw();
+    cancel_gesture();
   }
 
   // Handle unexpected loss of pointer capture
   function lost_pointer_capture(event: PointerEvent): void {
     if (activePointerId !== event.pointerId) return;
+    cancel_gesture();
+  }
 
-    currentStroke = null;
-    activePointerId = null;
-    redraw();
+  function key_down(event: KeyboardEvent): void {
+    if (event.key === "Escape" && currentStroke !== null) {
+      cancel_gesture();
+    }
   }
 
   // Register pointer events
@@ -150,6 +149,7 @@ export function setup_drawing(
   canvas.addEventListener("pointermove", pointer_move);
   canvas.addEventListener("pointerup", pointer_up);
   canvas.addEventListener("pointercancel", pointer_cancel);
+  globalThis.addEventListener("keydown", key_down);
   canvas.addEventListener(
     "lostpointercapture",
     lost_pointer_capture,
@@ -164,6 +164,7 @@ export function setup_drawing(
     canvas.removeEventListener("pointermove", pointer_move);
     canvas.removeEventListener("pointerup", pointer_up);
     canvas.removeEventListener("pointercancel", pointer_cancel);
+    globalThis.removeEventListener("keydown", key_down);
     canvas.removeEventListener(
       "lostpointercapture",
       lost_pointer_capture,

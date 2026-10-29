@@ -1,8 +1,48 @@
 import type {
+  drawing_command,
   drawing_document,
+  point,
   sticker_command,
   stroke_command,
 } from "./document.ts";
+
+export function create_stroke(
+  points: point[],
+  color: string,
+  width: number,
+): stroke_command {
+  const stroke: stroke_command = {
+    type: "stroke",
+    points,
+    color,
+    width,
+    render(ctx) {
+      render_stroke(ctx, stroke);
+    },
+  };
+
+  return stroke;
+}
+
+export function create_sticker(
+  location: point,
+  text: string,
+  size: number,
+  color: string,
+): sticker_command {
+  const sticker: sticker_command = {
+    type: "sticker",
+    location,
+    text,
+    size,
+    color,
+    render(ctx) {
+      render_sticker(ctx, sticker);
+    },
+  };
+
+  return sticker;
+}
 
 export function render_stroke(
   ctx: CanvasRenderingContext2D,
@@ -65,6 +105,15 @@ export function render_sticker(
   ctx.fillText(sticker.text, sticker.location.x, sticker.location.y);
 
   ctx.restore();
+}
+
+export function render_commands(
+  ctx: CanvasRenderingContext2D,
+  commands: readonly drawing_command[],
+): void {
+  for (const command of commands) {
+    command.render(ctx);
+  }
 }
 
 export function render_document(

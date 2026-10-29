@@ -1,4 +1,5 @@
 import type { drawing_command, point } from "../t1/document.ts";
+import { create_sticker, create_stroke } from "../t1/renderer.ts";
 
 export interface brush_tool {
   kind: "brush";
@@ -77,17 +78,17 @@ export class tool_collection {
   }
 }
 
-let custom_count = 0
+let custom_count = 0;
 
-export function create_sticker_tool (
+export function create_sticker_tool(
   raw_text: string | null,
   raw_label: string | null,
 ): sticker_tool | null {
   const text = raw_text?.trim() ?? "";
   const label = raw_label?.trim() ?? "";
 
-  if (text === "" || label === "") return null
-  custom_count++
+  if (text === "" || label === "") return null;
+  custom_count++;
 
   return {
     kind: "sticker",
@@ -95,7 +96,7 @@ export function create_sticker_tool (
     label,
     text: Array.from(text).slice(0, 8).join(""),
     size: 40,
-    color: "black"
+    color: "black",
   };
 }
 
@@ -106,19 +107,13 @@ export function create_command(
   location: point,
 ): drawing_command {
   if (tool.kind === "brush") {
-    return {
-      type: "stroke",
-      points: [{ ...location }],
-      color: tool.color,
-      width: tool.width,
-    };
+    return create_stroke([{ ...location }], tool.color, tool.width);
   }
 
-  return {
-    type: "sticker",
-    location: { ...location },
-    text: tool.text,
-    size: tool.size,
-    color: tool.color,
-  };
+  return create_sticker(
+    { ...location },
+    tool.text,
+    tool.size,
+    tool.color,
+  );
 }
